@@ -1,35 +1,17 @@
 import React from 'react';
-import {
-  Award,
-  CheckCircle2,
-  AlertTriangle,
-  Flame,
-  Star,
-  RefreshCw,
-  ArrowRight,
-  TrendingUp,
-  Brain,
-  ShieldAlert,
-  Activity,
-  Zap,
-} from 'lucide-react';
+import { Award, CheckCircle2, RefreshCw, ArrowRight, ShieldAlert, Activity } from 'lucide-react';
 import { useNightShiftStore } from '../../store/useNightShiftStore';
 import { useGamificationStore } from '../../store/useGamificationStore';
 import { DIFFICULTY_TIERS } from '../../data/nightShiftMedicalData';
-import { audio } from '../../utils/audio';
-
 interface ShiftDebriefProps {
   onRestart?: () => void;
 }
-
 export const ShiftDebrief: React.FC<ShiftDebriefProps> = ({ onRestart }) => {
   const { shift, reputation, restartShift } = useNightShiftStore();
   const { addXp, level } = useGamificationStore();
-
   const tierConfig =
     DIFFICULTY_TIERS.find((t) => t.tier === shift.selectedTier) || DIFFICULTY_TIERS[0];
   const overall = Math.round(shift.scores.overallPercentage);
-
   const getGrade = (pct: number) => {
     if (pct >= 95) return { grade: 'A+', label: 'BOARD CERTIFIED PRECISION', color: 'text-emerald-600' };
     if (pct >= 85) return { grade: 'A', label: 'ATTENDING-LEVEL COMPETENCE', color: 'text-emerald-600' };
@@ -180,7 +162,7 @@ export const ShiftDebrief: React.FC<ShiftDebriefProps> = ({ onRestart }) => {
             {shift.activeNemesis.description}
           </p>
           <div className="p-2.5 bg-white rounded-xl border border-rose-200 text-[11px] text-slate-700 font-semibold">
-            <strong className="text-rose-700 block">💡 High-Yield Pearl:</strong>
+            <strong className="text-rose-700 block uppercase text-[10px] tracking-wider">High-Yield Clinical Pearl:</strong>
             {shift.activeNemesis.unlockPearl}
           </div>
         </div>

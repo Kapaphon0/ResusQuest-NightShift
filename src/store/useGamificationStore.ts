@@ -189,44 +189,21 @@ export function useGamificationStore() {
     currentState: GamificationState,
     newLevel: number
   ): Achievement[] => {
-    return currentState.achievements.map((ach) => {
-      if (ach.unlocked) return ach;
-      let shouldUnlock = false;
+    const conditions: Record<string, boolean> = {
+      ach_first_triage: currentState.correctAnswers >= 1,
+      ach_high_accuracy: currentState.questionsAnswered >= 10 && currentState.accuracy >= 85,
+      ach_first_lesson: currentState.lessonsCompleted.length >= 1,
+      ach_perfect_lesson: currentState.perfectLessons.length >= 1,
+      ach_clinical_case: currentState.clinicalCasesCompleted.length >= 1,
+      ach_apprentice: newLevel >= 5,
+      ach_expert: newLevel >= 40,
+    };
 
-      switch (ach.id) {
-        case 'ach_first_triage':
-          shouldUnlock = currentState.correctAnswers >= 1;
-          break;
-        case 'ach_high_accuracy':
-          shouldUnlock =
-            currentState.questionsAnswered >= 10 && currentState.accuracy >= 85;
-          break;
-        case 'ach_first_lesson':
-          shouldUnlock = currentState.lessonsCompleted.length >= 1;
-          break;
-        case 'ach_perfect_lesson':
-          shouldUnlock = currentState.perfectLessons.length >= 1;
-          break;
-        case 'ach_clinical_case':
-          shouldUnlock = currentState.clinicalCasesCompleted.length >= 1;
-          break;
-        case 'ach_apprentice':
-          shouldUnlock = newLevel >= 5;
-          break;
-        case 'ach_expert':
-          shouldUnlock = newLevel >= 40;
-          break;
-      }
-
-      if (shouldUnlock) {
-        return {
-          ...ach,
-          unlocked: true,
-          unlockedAt: Date.now(),
-        };
-      }
-      return ach;
-    });
+    return currentState.achievements.map((ach) =>
+      !ach.unlocked && conditions[ach.id]
+        ? { ...ach, unlocked: true, unlockedAt: Date.now() }
+        : ach
+    );
   };
 
   /**
@@ -278,7 +255,7 @@ export function useGamificationStore() {
    * Direct helper to add XP with an optional label and bonus flag
    */
   const addXp = useCallback(
-    (amount: number, reason: string = 'Experience Gained', isBonus: boolean = false) => {
+    (amount: number, reason = 'Experience Gained', isBonus = false) => {
       applyXpGain(amount, reason, isBonus);
     },
     [applyXpGain]

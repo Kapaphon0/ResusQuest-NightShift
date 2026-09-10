@@ -1,16 +1,6 @@
 import React, { useState } from 'react';
-import {
-  X,
-  Stethoscope,
-  Volume2,
-  VolumeX,
-  CheckCircle2,
-  AlertCircle,
-  Play,
-  Pause,
-} from 'lucide-react';
+import { X, Stethoscope, Volume2, CheckCircle2, AlertCircle, Play, Pause } from 'lucide-react';
 import { audio } from '../../utils/audio';
-
 interface AuscultationSite {
   id: string;
   name: string;
@@ -20,7 +10,6 @@ interface AuscultationSite {
   x: number; // percentage on chest map
   y: number;
 }
-
 interface ClinicalAuscultationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -32,7 +21,6 @@ interface ClinicalAuscultationModalProps {
     pulmonaryFinding: string;
   };
 }
-
 const DEFAULT_SITES: AuscultationSite[] = [
   {
     id: 'aortic',

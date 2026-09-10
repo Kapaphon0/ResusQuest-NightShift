@@ -1,32 +1,16 @@
 import React, { useState } from 'react';
-import {
-  Moon,
-  Clock,
-  Shield,
-  Zap,
-  Flame,
-  Award,
-  ArrowRight,
-  Sliders,
-  AlertCircle,
-  Activity,
-  Target,
-  Users,
-} from 'lucide-react';
+import { Moon, Clock, ArrowRight, Sliders, Activity, Target } from 'lucide-react';
 import { useNightShiftStore } from '../../store/useNightShiftStore';
 import { useGamificationStore } from '../../store/useGamificationStore';
 import { DIFFICULTY_TIERS } from '../../data/nightShiftMedicalData';
 import { DifficultySelector } from './DifficultySelector';
 import { audio } from '../../utils/audio';
-
 export const ShiftSetup: React.FC = () => {
   const { shift, reputation, selectDifficulty, startShift } = useNightShiftStore();
   const { level, xp } = useGamificationStore();
   const [showDifficultyModal, setShowDifficultyModal] = useState(false);
-
   const activeTierConfig =
     DIFFICULTY_TIERS.find((t) => t.tier === shift.selectedTier) || DIFFICULTY_TIERS[0];
-
   return (
     <div className="flex-1 flex flex-col justify-between p-4 space-y-4 overflow-y-auto select-none pb-20">
       {/* 1. Header Clinician Level vs ED Reputation Separation */}

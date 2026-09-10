@@ -1,15 +1,13 @@
 import React from 'react';
-import { Shield, Star, AlertTriangle, ArrowRight, Check } from 'lucide-react';
+import { Shield, Star, AlertTriangle, Check } from 'lucide-react';
 import { DIFFICULTY_TIERS } from '../../data/nightShiftMedicalData';
 import { audio } from '../../utils/audio';
-
 interface DifficultySelectorProps {
   currentTier: number;
   unlockedTiers: number[];
   onSelectTier: (tier: number) => void;
   onClose?: () => void;
 }
-
 export const DifficultySelector: React.FC<DifficultySelectorProps> = ({
   currentTier,
   unlockedTiers,

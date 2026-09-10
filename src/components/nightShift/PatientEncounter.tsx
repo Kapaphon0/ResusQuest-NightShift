@@ -1,30 +1,7 @@
 import React, { useState } from 'react';
-import {
-  Activity,
-  Heart,
-  Wind,
-  Droplets,
-  Brain,
-  AlertCircle,
-  Eye,
-  FileText,
-  Stethoscope,
-  Radio,
-  TestTube2,
-  Scan,
-  CheckCircle2,
-  XCircle,
-  Zap,
-  ArrowRight,
-  ShieldAlert,
-  HelpCircle,
-  RefreshCw,
-  Send,
-  Sparkles,
-} from 'lucide-react';
-import { Patient, ClinicalAction, ClinicalClue, DiagnosisOption } from '../../types/nightShift';
+import { Activity, Brain, Eye, FileText, Stethoscope, TestTube2, Scan, CheckCircle2, Zap, ShieldAlert, RefreshCw, Sparkles } from 'lucide-react';
+import { Patient, ClinicalAction, ClinicalClue } from '../../types/nightShift';
 import { audio } from '../../utils/audio';
-
 interface PatientEncounterProps {
   patient: Patient;
   currentAP: number;
@@ -34,7 +11,6 @@ interface PatientEncounterProps {
   onReassess: () => void;
   onDischargeOrAdmit: () => void;
 }
-
 export const PatientEncounter: React.FC<PatientEncounterProps> = ({
   patient,
   currentAP,

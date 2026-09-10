@@ -1,37 +1,16 @@
 import React, { useState } from 'react';
-import {
-  X,
-  Sparkles,
-  Shuffle,
-  Check,
-  Lock,
-  User,
-  Shirt,
-  Stethoscope,
-  Heart,
-  Sliders,
-  ShieldCheck,
-  ChevronRight,
-} from 'lucide-react';
+import { X, Sparkles, Shuffle, Check, Lock, User, Shirt, Stethoscope, Heart } from 'lucide-react';
 import { useAvatarStore } from '../../store/useAvatarStore';
 import { useGamificationStore } from '../../store/useGamificationStore';
 import { AvatarRenderer } from './AvatarRenderer';
 import { CompanionRenderer } from './CompanionRenderer';
-import {
-  HairStyle,
-  GenderPresentation,
-  FaceStyle,
-  EyeStyle,
-  CompanionId,
-} from '../../types/avatar';
+import { HairStyle, GenderPresentation, FaceStyle, EyeStyle, CompanionId } from '../../types/avatar';
 import { audio } from '../../utils/audio';
-
 interface AvatarStudioModalProps {
   isOpen: boolean;
   onClose: () => void;
   isOnboardingMode?: boolean;
 }
-
 export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
   isOpen,
   onClose,
@@ -46,9 +25,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
     randomizeAppearance,
     completeOnboarding,
   } = useAvatarStore();
-
   const { level, title } = useGamificationStore();
-
   const [activeTab, setActiveTab] = useState<'character' | 'wardrobe' | 'companion'>('character');
   const [subTab, setSubTab] = useState<string>('hair');
 

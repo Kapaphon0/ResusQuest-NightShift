@@ -1,5 +1,4 @@
-import { PatientVitals, ClinicalAction, Patient } from '../types/nightShift';
-
+import { PatientVitals, ClinicalAction } from '../types/nightShift';
 /**
  * Parses systolic and diastolic from "120/80" string.
  */
@@ -10,7 +9,6 @@ export function parseBP(bpString: string): { sys: number; dia: number; map: numb
   const map = Math.round(dia + (sys - dia) / 3);
   return { sys, dia, map };
 }
-
 /**
  * Calculates updated vitals based on previous vitals, clinical actions taken,
  * and current physiologic status.

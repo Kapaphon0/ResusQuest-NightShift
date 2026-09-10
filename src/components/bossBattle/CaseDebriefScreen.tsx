@@ -1,20 +1,7 @@
 import React from 'react';
-import {
-  Trophy,
-  CheckCircle2,
-  AlertTriangle,
-  Brain,
-  ShieldAlert,
-  RotateCcw,
-  Sparkles,
-  ArrowRight,
-  Clock,
-  Activity,
-  Award,
-} from 'lucide-react';
+import { Trophy, CheckCircle2, AlertTriangle, Brain, ShieldAlert, RotateCcw, Sparkles, ArrowRight, Clock, Activity } from 'lucide-react';
 import { CaseScoreBreakdown, DebriefReport } from '../../types/bossCase';
 import { audio } from '../../utils/audio';
-
 interface CaseDebriefScreenProps {
   score: CaseScoreBreakdown;
   debrief: DebriefReport;
@@ -24,7 +11,6 @@ interface CaseDebriefScreenProps {
   onExit: () => void;
   claimed: boolean;
 }
-
 export const CaseDebriefScreen: React.FC<CaseDebriefScreenProps> = ({
   score,
   debrief,
@@ -76,7 +62,7 @@ export const CaseDebriefScreen: React.FC<CaseDebriefScreenProps> = ({
           CLINICAL BOSS BATTLE EVALUATION
         </span>
         <h2 className="text-xl font-black text-white mt-0.5 tracking-tight">
-          👑 THE CHEST PAIN CASE
+          THE CHEST PAIN CASE
         </h2>
 
         {/* Primary Case Score */}
@@ -229,7 +215,7 @@ export const CaseDebriefScreen: React.FC<CaseDebriefScreenProps> = ({
       <div className="bg-slate-950 border border-blue-500/40 rounded-2xl p-4 space-y-2.5">
         <div className="flex items-center gap-2 text-blue-400 text-xs font-black uppercase tracking-wider">
           <Brain className="w-4 h-4" />
-          <span>🧠 Key Clinical Learning Points</span>
+          <span>Key Clinical Learning Points</span>
         </div>
         <ul className="space-y-2">
           {debrief.keyLearningPoints.map((pearl, idx) => (

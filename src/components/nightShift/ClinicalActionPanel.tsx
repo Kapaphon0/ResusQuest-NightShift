@@ -1,19 +1,10 @@
-import React, { useState } from 'react';
-import {
-  Stethoscope,
-  FlaskConical,
-  Zap,
-  CheckCircle2,
-  AlertTriangle,
-  FileText,
-  Activity,
-  ArrowRight,
-  Eye,
-  Crosshair,
-} from 'lucide-react';
-import { Patient, ClinicalAction, ClinicalClue } from '../../types/nightShift';
+import React, { useState, useEffect } from 'react';
+import { FlaskConical, Zap, CheckCircle2, ArrowRight, Eye, Crosshair, Sparkles } from 'lucide-react';
+import { Patient, ClinicalAction } from '../../types/nightShift';
 import { audio } from '../../utils/audio';
-
+import { useShiftStore } from '../../store/useShiftStore';
+import { interpretDiagnosticClue } from '../../utils/physiologicalInterpreter';
+import { GlossaryText } from '../glossary/GlossaryText';
 interface ClinicalActionPanelProps {
   patient: Patient;
   currentAP: number;
@@ -22,9 +13,7 @@ interface ClinicalActionPanelProps {
   onConfirmDiagnosis: (diagnosisId: string) => void;
   onDischargeOrAdmit: () => void;
 }
-
 type ActionCategory = 'assess' | 'investigate' | 'intervene' | 'diagnose';
-
 export const ClinicalActionPanel: React.FC<ClinicalActionPanelProps> = ({
   patient,
   currentAP,
@@ -33,7 +22,13 @@ export const ClinicalActionPanel: React.FC<ClinicalActionPanelProps> = ({
   onConfirmDiagnosis,
   onDischargeOrAdmit,
 }) => {
+  const { isCivilianMode } = useShiftStore();
   const [activeTab, setActiveTab] = useState<ActionCategory>('intervene');
+  const [showPhysiological, setShowPhysiological] = useState<boolean>(Boolean(isCivilianMode));
+
+  useEffect(() => {
+    setShowPhysiological(Boolean(isCivilianMode));
+  }, [isCivilianMode]);
 
   // Filter actions
   const assessActions = patient.availableActions.filter((a) => a.category === 'assess');
@@ -143,12 +138,31 @@ export const ClinicalActionPanel: React.FC<ClinicalActionPanelProps> = ({
         {/* INVESTIGATIONS TAB (ECG, POCUS, LABS, IMAGING) */}
         {activeTab === 'investigate' && (
           <div className="space-y-2.5">
-            <div className="text-[11px] font-bold text-slate-500">
-              Bedside Diagnostics & Clues (Tap to Reveal)
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500">
+              <span>Bedside Diagnostics & Clues</span>
+              <button
+                onClick={() => {
+                  audio.playTelemetryClick();
+                  setShowPhysiological((prev) => !prev);
+                }}
+                className={`px-2 py-0.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer border ${
+                  showPhysiological
+                    ? 'bg-amber-100 text-amber-900 border-amber-300 shadow-xs'
+                    : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                }`}
+              >
+                <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+                <span>{showPhysiological ? 'Physiological View' : 'Raw Telemetry'}</span>
+              </button>
             </div>
 
             {patient.hiddenClues.map((clue) => {
               const hasEnoughAP = currentAP >= clue.costAP;
+              const interpretation = interpretDiagnosticClue(
+                clue.category,
+                clue.title,
+                clue.description
+              );
 
               return (
                 <div
@@ -160,17 +174,35 @@ export const ClinicalActionPanel: React.FC<ClinicalActionPanelProps> = ({
                   }`}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-1.5">
+                    <div className="space-y-0.5 flex-1 pr-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
                           {clue.category}
                         </span>
                         <h4 className="text-xs font-black text-slate-900">{clue.title}</h4>
                       </div>
+
                       {clue.revealed ? (
-                        <p className="text-[11px] text-slate-700 font-medium pt-1 leading-snug">
-                          {clue.description}
-                        </p>
+                        <div className="space-y-1.5 pt-1">
+                          {showPhysiological ? (
+                            <div className="bg-amber-50 border border-amber-200/80 rounded-xl p-2 space-y-1">
+                              <div className="flex items-center gap-1 text-[10px] font-black uppercase text-amber-900">
+                                <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                                <span>{interpretation.dangerAlert}</span>
+                              </div>
+                              <p className="text-[11px] font-bold text-slate-800 leading-snug">
+                                {interpretation.physiologicalMeaning}
+                              </p>
+                              <p className="text-[9px] text-slate-500 pt-0.5 border-t border-amber-200/60">
+                                <span className="font-semibold">Raw Findings:</span> {clue.description}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-[11px] text-slate-700 font-medium leading-snug">
+                              <GlossaryText text={clue.description} />
+                            </p>
+                          )}
+                        </div>
                       ) : (
                         <p className="text-[11px] text-slate-400 italic pt-0.5">
                           Unreviewed diagnostic report.

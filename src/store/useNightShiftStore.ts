@@ -1,42 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  NightShiftState,
-  PlayerReputation,
-  ClinicalAction,
-  MistakeRecord,
-  NemesisAlert,
-  Patient,
-  ClinicalScores,
-} from '../types/nightShift';
-import {
-  DIFFICULTY_TIERS,
-  CASE_TEMPLATES,
-  getReputationTitle,
-  calculateStatusLevel,
-} from '../data/nightShiftMedicalData';
-import {
-  generateInitialShift,
-  generatePatientFromTemplate,
-  advanceShiftClock,
-  getRandomEventForTier,
-} from '../utils/nightShiftGenerator';
+import { NightShiftState, PlayerReputation, ClinicalAction, MistakeRecord, NemesisAlert, ClinicalScores } from '../types/nightShift';
+import { DIFFICULTY_TIERS, CASE_TEMPLATES, getReputationTitle, calculateStatusLevel } from '../data/nightShiftMedicalData';
+import { generateInitialShift, generatePatientFromTemplate, advanceShiftClock, getRandomEventForTier } from '../utils/nightShiftGenerator';
 import { calculateDynamicVitals } from '../utils/dynamicVitals';
 import { audio } from '../utils/audio';
-
 const SHIFT_STORAGE_KEY = 'resus_night_shift_v2';
 const REPUTATION_STORAGE_KEY = 'resus_reputation_v2';
 const MISTAKES_STORAGE_KEY = 'resus_mistakes_v2';
+const safeGetJSON = <T>(key: string, fallback: T): T => {
+  try {
+    const raw = typeof window !== 'undefined' ? window.localStorage?.getItem(key) : null;
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+};
 
 function getInitialReputation(): PlayerReputation {
-  if (typeof window !== 'undefined' && window.localStorage) {
-    try {
-      const saved = window.localStorage.getItem(REPUTATION_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // Fallback
-    }
-  }
-  return {
+  return safeGetJSON(REPUTATION_STORAGE_KEY, {
     tier: 1,
     tierTitle: 'ED Rookie',
     reputationXP: 120,
@@ -45,19 +26,11 @@ function getInitialReputation(): PlayerReputation {
     shiftsCompleted: 0,
     totalResuscitations: 0,
     mysteriesSolved: 0,
-  };
+  });
 }
 
 function getInitialMistakes(): MistakeRecord[] {
-  if (typeof window !== 'undefined' && window.localStorage) {
-    try {
-      const saved = window.localStorage.getItem(MISTAKES_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // Fallback
-    }
-  }
-  return [
+  return safeGetJSON(MISTAKES_STORAGE_KEY, [
     {
       id: 'pre_mistake_1',
       timestamp: Date.now() - 86400000,
@@ -68,16 +41,15 @@ function getInitialMistakes(): MistakeRecord[] {
       clinicalReason: 'Withholding early balanced crystalloids accelerates multi-organ ischemia.',
       correctApproach: 'Administer 30 mL/kg balanced crystalloids within the golden first hour.',
     },
-  ];
+  ]);
 }
 
 function getInitialShiftState(): NightShiftState {
   const initialRep = getInitialReputation();
-  const activeTier = initialRep.unlockedTiers.length > 0 ? initialRep.unlockedTiers[0] : 1;
+  const activeTier = initialRep.unlockedTiers[0] ?? 1;
   return generateInitialShift(activeTier, 27);
 }
 
-// Global state holders
 let globalShift: NightShiftState = getInitialShiftState();
 let globalReputation: PlayerReputation = getInitialReputation();
 let globalMistakes: MistakeRecord[] = getInitialMistakes();
@@ -85,14 +57,14 @@ let globalMistakes: MistakeRecord[] = getInitialMistakes();
 const listeners = new Set<() => void>();
 
 function notify() {
-  if (typeof window !== 'undefined' && window.localStorage) {
-    try {
-      window.localStorage.setItem(SHIFT_STORAGE_KEY, JSON.stringify(globalShift));
-      window.localStorage.setItem(REPUTATION_STORAGE_KEY, JSON.stringify(globalReputation));
-      window.localStorage.setItem(MISTAKES_STORAGE_KEY, JSON.stringify(globalMistakes));
-    } catch {
-      // Storage quota safety
+  try {
+    if (typeof window !== 'undefined') {
+      window.localStorage?.setItem(SHIFT_STORAGE_KEY, JSON.stringify(globalShift));
+      window.localStorage?.setItem(REPUTATION_STORAGE_KEY, JSON.stringify(globalReputation));
+      window.localStorage?.setItem(MISTAKES_STORAGE_KEY, JSON.stringify(globalMistakes));
     }
+  } catch {
+    // Storage quota safety
   }
   listeners.forEach((l) => l());
 }

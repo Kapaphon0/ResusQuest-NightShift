@@ -1,47 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import {
-  StructuredCaseState,
-  DeteriorationLevel,
-  ExamSystemFinding,
-  InvestigationResult,
-  RedFlagItem,
-  DifferentialOption,
-  ManagementAction,
-} from '../../types/bossCase';
-import {
-  INITIAL_CHEST_PAIN_CASE,
-  DISPOSITION_OPTIONS,
-  calculateCaseScoreAndDebrief,
-} from '../../data/chestPainCaseData';
+import { StructuredCaseState, ExamSystemFinding, InvestigationResult, RedFlagItem, DifferentialOption, ManagementAction } from '../../types/bossCase';
+import { INITIAL_CHEST_PAIN_CASE, DISPOSITION_OPTIONS, calculateCaseScoreAndDebrief } from '../../data/chestPainCaseData';
 import { ECGLeadViewer } from './ECGLeadViewer';
 import { CaseDebriefScreen } from './CaseDebriefScreen';
 import { useGamificationStore } from '../../store/useGamificationStore';
 import { useAvatarStore } from '../../store/useAvatarStore';
+import { COMPANIONS_CATALOG } from '../../data/companionsData';
 import { CompanionRenderer } from '../avatar/CompanionRenderer';
 import { ClinicalAuscultationModal } from '../avatar/ClinicalAuscultationModal';
 import { audio } from '../../utils/audio';
-import {
-  Activity,
-  Heart,
-  Stethoscope,
-  FlaskConical,
-  Brain,
-  Pill,
-  Ambulance,
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
-  User,
-  ShieldAlert,
-  ChevronRight,
-  ArrowLeft,
-  Flame,
-  Info,
-  Layers,
-  Sparkles,
-  Zap,
-} from 'lucide-react';
-
+import { Activity, Heart, Stethoscope, FlaskConical, Brain, Pill, Ambulance, CheckCircle2, AlertTriangle, Clock, User, ChevronRight, ArrowLeft, Info, Crown } from 'lucide-react';
 interface ChestPainCaseViewProps {
   onExit: () => void;
 }
@@ -50,7 +18,11 @@ type BossTab = 'history' | 'exam' | 'investigations' | 'reasoning' | 'management
 
 export const ChestPainCaseView: React.FC<ChestPainCaseViewProps> = ({ onExit }) => {
   const { awardQuestionXP, completeClinicalCase } = useGamificationStore();
-  const { activeCompanion, companions } = useAvatarStore();
+  const { appearance } = useAvatarStore();
+  const activeCompanion =
+    appearance.companionId !== 'none'
+      ? COMPANIONS_CATALOG[appearance.companionId]
+      : null;
 
   const [state, setState] = useState<StructuredCaseState>(() =>
     JSON.parse(JSON.stringify(INITIAL_CHEST_PAIN_CASE))
@@ -488,7 +460,8 @@ export const ChestPainCaseView: React.FC<ChestPainCaseViewProps> = ({ onExit }) 
           <div>
             <div className="flex items-center gap-1.5">
               <span className="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                <span>👑 BOSS BATTLE</span>
+                <Crown className="w-3 h-3 text-amber-400" />
+                <span>BOSS BATTLE</span>
               </span>
               <span className="text-xs font-black tracking-tight text-white">
                 THE CHEST PAIN CASE
@@ -583,9 +556,13 @@ export const ChestPainCaseView: React.FC<ChestPainCaseViewProps> = ({ onExit }) 
           <div className="flex items-center gap-2 pt-1 border-t border-slate-900 text-xs">
             <div className="shrink-0">
               <CompanionRenderer
-                type={activeCompanion.type}
-                size={26}
-                animation={state.deteriorationState !== 'stable_presentation' ? 'alert' : 'idle'}
+                companionId={activeCompanion.id}
+                size="sm"
+                contextMode={
+                  state.deteriorationState !== 'stable_presentation'
+                    ? 'criticalVitals'
+                    : 'idle'
+                }
               />
             </div>
             <div className="text-[11px] text-slate-400 leading-tight">

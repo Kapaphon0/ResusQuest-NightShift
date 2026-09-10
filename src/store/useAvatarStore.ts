@@ -215,45 +215,24 @@ export function useAvatarStore() {
   const equipItem = useCallback(
     (item: InventoryItem) => {
       audio.playPerkEquipped();
+      const slotMap: Record<string, keyof AvatarAppearance> = {
+        outfit: 'outfitStyle',
+        stethoscope: 'stethoscopeStyle',
+        badge: 'badgeStyle',
+        watch: 'watchStyle',
+        glasses: 'glassesStyle',
+        mask: 'maskStyle',
+        accessory: 'accessoryStyle',
+        companion: 'companionId',
+      };
       updateState((prev) => {
         const app = { ...prev.appearance };
-        switch (item.slotType) {
-          case 'outfit':
-            app.outfitStyle = item.value as any;
-            break;
-          case 'stethoscope':
-            app.stethoscopeStyle = item.value as any;
-            break;
-          case 'badge':
-            app.badgeStyle = item.value as any;
-            break;
-          case 'watch':
-            app.watchStyle = item.value as any;
-            break;
-          case 'glasses':
-            app.glassesStyle = item.value as any;
-            break;
-          case 'mask':
-            app.maskStyle = item.value as any;
-            break;
-          case 'accessory':
-            app.accessoryStyle = item.value as any;
-            break;
-          case 'companion':
-            app.companionId = item.value as any;
-            break;
-        }
-
-        // Ensure item is marked unlocked
+        const key = slotMap[item.slotType];
+        if (key) (app as Record<string, unknown>)[key] = item.value;
         const unlocked = prev.unlockedItemIds.includes(item.id)
           ? prev.unlockedItemIds
           : [...prev.unlockedItemIds, item.id];
-
-        return {
-          ...prev,
-          appearance: app,
-          unlockedItemIds: unlocked,
-        };
+        return { ...prev, appearance: app, unlockedItemIds: unlocked };
       });
     },
     [updateState]

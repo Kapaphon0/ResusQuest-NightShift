@@ -13,6 +13,8 @@ export interface InvestigationDetail {
   revealed: boolean;
   data: string;
   badge: string;
+  laymanBadge?: string;
+  laymanData?: string;
 }
 
 export interface FogOfWarDecisionOption {
@@ -20,16 +22,21 @@ export interface FogOfWarDecisionOption {
   label: string;
   isCorrect: boolean;
   penaltyExplain: string;
+  laymanLabel?: string;
+  laymanPenaltyExplain?: string;
 }
 
 export interface FogOfWarPatient {
   id: string;
+  title?: string;
   demographics: string;
   initialVitals: PatientVitals;
   startingAP: number;
   investigations: Record<InvestigationType, InvestigationDetail>;
   decisionOptions: FogOfWarDecisionOption[];
   clinicalPearl: string;
+  laymanDemographics?: string;
+  laymanPearl?: string;
 }
 
 export interface SwipeTriageCard {
@@ -39,6 +46,8 @@ export interface SwipeTriageCard {
   correctAction: 'CRASH' | 'STABLE';
   takeaway: string;
   telemetry: PatientVitals;
+  laymanPrompt?: string;
+  laymanTakeaway?: string;
 }
 
 export interface ShiftPerk {
@@ -71,6 +80,10 @@ export interface ShiftMissedConcept {
   correctAction: string;
   category: 'ECG' | 'TRAUMA' | 'TOX' | 'HEMODYNAMICS';
   timestamp: number;
+  laymanReason?: string;
+  laymanPrompt?: string;
+  laymanTrap?: string;
+  laymanAction?: string;
 }
 
 export interface UserProfile {
@@ -82,4 +95,6 @@ export interface UserProfile {
   shiftsCompleted: number;
   attendingRating: number;
   streakDays: number;
+  civilianMode?: boolean;
+  accuracyRate?: number;
 }

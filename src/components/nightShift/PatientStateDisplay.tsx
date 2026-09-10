@@ -1,32 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Activity,
-  Heart,
-  Wind,
-  Brain,
-  Thermometer,
-  RotateCcw,
-  Volume2,
-  VolumeX,
-  AlertTriangle,
-  ArrowUpRight,
-  ArrowDownRight,
-  Radio,
-  CheckCircle2,
-} from 'lucide-react';
+import { Activity, Heart, Wind, RotateCcw, AlertTriangle, ArrowUpRight, ArrowDownRight, Radio, CheckCircle2, Sparkles } from 'lucide-react';
 import { Patient, ClinicalStatusLevel } from '../../types/nightShift';
 import { audio } from '../../utils/audio';
-
+import { useShiftStore } from '../../store/useShiftStore';
+import { interpretVitals } from '../../utils/physiologicalInterpreter';
 interface PatientStateDisplayProps {
   patient: Patient;
   onReassess?: () => void;
 }
-
 export const PatientStateDisplay: React.FC<PatientStateDisplayProps> = ({
   patient,
   onReassess,
 }) => {
   const { vitals, statusLevel } = patient;
+  const { isCivilianMode } = useShiftStore();
+  const [showPhysiological, setShowPhysiological] = useState<boolean>(Boolean(isCivilianMode));
   const [isCyclingNIBP, setIsCyclingNIBP] = useState(false);
   const [lastCycleTime, setLastCycleTime] = useState<string>('Just now');
   const [prevVitals, setPrevVitals] = useState(vitals);
@@ -35,6 +23,14 @@ export const PatientStateDisplay: React.FC<PatientStateDisplayProps> = ({
     spo2?: number;
     bpChanged?: boolean;
   }>({});
+
+  // Sync state if civilian mode is toggled externally
+  useEffect(() => {
+    setShowPhysiological(Boolean(isCivilianMode));
+  }, [isCivilianMode]);
+
+  // Compute physiological interpretation
+  const vitalsInterpretation = interpretVitals(vitals);
 
   // Detect vital sign changes and compute delta trends
   useEffect(() => {
@@ -180,18 +176,66 @@ export const PatientStateDisplay: React.FC<PatientStateDisplayProps> = ({
           </div>
         </div>
 
-        {/* Clinical Acuity / Status Badge */}
-        <div className="flex flex-col items-end gap-1">
-          <span
-            className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${statusBadge.style}`}
-          >
-            {statusBadge.label}
-          </span>
+        {/* Clinical Acuity / Status Badge & Toggle */}
+        <div className="flex flex-col items-end gap-1.5">
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => {
+                audio.playTelemetryClick();
+                setShowPhysiological((prev) => !prev);
+              }}
+              className={`px-2 py-0.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer border ${
+                showPhysiological
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 ring-1 ring-amber-500/30'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-700'
+              }`}
+            >
+              <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+              <span>{showPhysiological ? 'Physiological View' : 'Raw Telemetry'}</span>
+            </button>
+
+            <span
+              className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${statusBadge.style}`}
+            >
+              {statusBadge.label}
+            </span>
+          </div>
+
           <span className="text-[9px] font-mono text-slate-500 font-bold">
             MONITOR CH-1 • ONLINE
           </span>
         </div>
       </div>
+
+      {/* Physiological Meaning Banner (When Active) */}
+      {showPhysiological && (
+        <div className="mx-3 mt-2 p-2.5 rounded-2xl bg-amber-950/30 border border-amber-500/40 text-xs space-y-1.5 animate-in fade-in duration-150">
+          <div className="flex items-center justify-between text-[10px] font-mono font-black uppercase text-amber-400">
+            <span className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Physiological State (What Is Happening Inside):</span>
+            </span>
+            <span className="text-[9px] text-amber-300/70 font-semibold">Plain-English</span>
+          </div>
+
+          <div className="space-y-1 text-slate-200 text-[11px] leading-relaxed">
+            <p className="flex items-start gap-1.5">
+              <span className="font-black text-amber-300 shrink-0">Blood Pressure:</span>
+              <span>{vitalsInterpretation.bpMeaning}</span>
+            </p>
+            <p className="flex items-start gap-1.5">
+              <span className="font-black text-amber-300 shrink-0">Heart Rate:</span>
+              <span>{vitalsInterpretation.hrMeaning}</span>
+            </p>
+            {vitals.spo2 < 95 && (
+              <p className="flex items-start gap-1.5">
+                <span className="font-black text-rose-300 shrink-0">Oxygenation:</span>
+                <span>{vitalsInterpretation.o2Meaning}</span>
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 2. Real-Time Telemetry Waveforms (ECG Lead II + SpO2 Pleth) */}
       <div className="p-3 space-y-2 bg-slate-950/80">
@@ -414,7 +458,7 @@ export const PatientStateDisplay: React.FC<PatientStateDisplayProps> = ({
           </div>
 
           <div className="text-[8px] text-slate-400">
-            {vitals.temp || '37.0'}°C
+            {vitals.tempC || '37.0'}°C
           </div>
         </div>
       </div>

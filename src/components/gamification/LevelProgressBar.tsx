@@ -1,13 +1,11 @@
 import React from 'react';
-import { Zap, ChevronRight, Info } from 'lucide-react';
+import { Zap, Info } from 'lucide-react';
 import { LevelDetails } from '../../utils/levelProgression';
 import { GAME_RANK_DISCLAIMER } from '../../types/gamification';
-
 interface LevelProgressBarProps {
   details: LevelDetails;
   compact?: boolean;
 }
-
 export const LevelProgressBar: React.FC<LevelProgressBarProps> = ({
   details,
   compact = false,

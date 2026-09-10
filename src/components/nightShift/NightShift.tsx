@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNightShiftStore } from '../../store/useNightShiftStore';
+import { useShiftStore } from '../../store/useShiftStore';
 import { ShiftSetup } from './ShiftSetup';
 import { DepartmentStatusHUD } from './DepartmentStatusHUD';
 import { MultiplePatientManager } from './MultiplePatientManager';
@@ -8,8 +9,8 @@ import { ClinicalActionPanel } from './ClinicalActionPanel';
 import { RandomEventModal } from './RandomEventModal';
 import { ShiftDebrief } from './ShiftDebrief';
 import { SwipeTriage } from '../SwipeTriage';
-import { AlertTriangle, Sparkles, Siren, CheckCircle2, X } from 'lucide-react';
-
+import { CivilianNightShift } from './CivilianNightShift';
+import { AlertTriangle, Sparkles, Siren, X } from 'lucide-react';
 export const NightShift: React.FC = () => {
   const {
     shift,
@@ -26,8 +27,14 @@ export const NightShift: React.FC = () => {
     triggerSwipeTriage,
     dismissSwipeTriage,
   } = useNightShiftStore();
+  const { isCivilianMode, toggleCivilianMode } = useShiftStore();
 
-  // 1. Lobby Phase
+  // 1. Dedicated Civilian First-Responder Simulation Scene
+  if (isCivilianMode) {
+    return <CivilianNightShift onSwitchToHospitalBay={toggleCivilianMode} />;
+  }
+
+  // 2. Lobby Phase
   if (shift.phase === 'lobby') {
     return <ShiftSetup />;
   }

@@ -1,21 +1,13 @@
 import React from 'react';
-import {
-  Clock,
-  Zap,
-  Activity,
-  AlertTriangle,
-  Volume2,
-  VolumeX,
-  Shield,
-  HeartPulse,
-} from 'lucide-react';
+import { Clock, Zap, Volume2, VolumeX, HeartPulse, Stethoscope, HeartHandshake } from 'lucide-react';
 import { useNightShiftStore } from '../../store/useNightShiftStore';
+import { useShiftStore } from '../../store/useShiftStore';
 import { audio } from '../../utils/audio';
-
 export const DepartmentStatusHUD: React.FC = () => {
   const { shift } = useNightShiftStore();
+  const { isCivilianMode, toggleCivilianMode } = useShiftStore();
+  const isCivilian = Boolean(isCivilianMode);
   const [isMuted, setIsMuted] = React.useState(audio.isMuted);
-
   const getStatusBadge = () => {
     switch (shift.departmentStatus) {
       case 'code_blue':
@@ -63,12 +55,43 @@ export const DepartmentStatusHUD: React.FC = () => {
         </div>
 
         {/* Department Status Badge */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <span
             className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${statusInfo.color}`}
           >
             {statusInfo.label}
           </span>
+
+          {/* Mode Switcher */}
+          <button
+            id="btn-hud-civilian-toggle"
+            onClick={() => {
+              audio.playTelemetryClick();
+              toggleCivilianMode();
+            }}
+            title={
+              isCivilian
+                ? 'Active: Civilian Hero Mode. Click to switch to Clinician Mode.'
+                : 'Active: Clinician Mode. Click to switch to Civilian Hero Mode.'
+            }
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border cursor-pointer ${
+              isCivilian
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 hover:bg-amber-500/30'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700 hover:text-white'
+            }`}
+          >
+            {isCivilian ? (
+              <>
+                <HeartHandshake className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="hidden xs:inline">CIVILIAN HERO</span>
+              </>
+            ) : (
+              <>
+                <Stethoscope className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                <span className="hidden xs:inline">CLINICIAN</span>
+              </>
+            )}
+          </button>
 
           {/* Audio Mute Toggle */}
           <button

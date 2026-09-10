@@ -1,23 +1,12 @@
 import React, { useState } from 'react';
-import {
-  X,
-  Lock,
-  Check,
-  Package,
-  Sparkles,
-  Info,
-  ShieldCheck,
-  SlidersHorizontal,
-} from 'lucide-react';
+import { X, Lock, Package, Sparkles, Info } from 'lucide-react';
 import { useAvatarStore } from '../../store/useAvatarStore';
 import { InventoryItem, ItemCategory, ItemRarity } from '../../types/avatar';
 import { audio } from '../../utils/audio';
-
 interface InventoryModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
 export const InventoryModal: React.FC<InventoryModalProps> = ({
   isOpen,
   onClose,
@@ -28,12 +17,9 @@ export const InventoryModal: React.FC<InventoryModalProps> = ({
     appearance,
     equipItem,
   } = useAvatarStore();
-
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | 'all'>('all');
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
-
   if (!isOpen) return null;
-
   const TABS: { id: ItemCategory | 'all'; label: string }[] = [
     { id: 'all', label: 'All' },
     { id: 'equipment', label: 'Equipment' },

@@ -1,40 +1,34 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  Activity,
-  Heart,
-  Wind,
-  Zap,
-  Flame,
-  Clock,
-  AlertTriangle,
-  ShieldCheck,
-  CheckCircle2,
-  XCircle,
-  ArrowRight,
-  RotateCcw,
-} from 'lucide-react';
+import { Activity, Heart, Wind, Zap, Flame, Clock, AlertTriangle, ShieldCheck, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
 import { useShiftStore } from '../store/useShiftStore';
 import { useGamificationStore } from '../store/useGamificationStore';
 import { swipeTriageCards } from '../data/shiftContent';
 import { audio } from '../utils/audio';
-
 const TOTAL_TIME_SECONDS = 30;
-
 export interface SwipeTriageProps {
   bedNumber?: number;
   onTriageAction?: (cardId: string, action: 'CRASH' | 'STABLE', timeTakenSeconds: number) => boolean | void;
   attendingApproval?: number;
   onCompleteSession?: () => void;
 }
-
 export const SwipeTriage: React.FC<SwipeTriageProps> = ({
   bedNumber,
   onTriageAction,
   attendingApproval,
   onCompleteSession,
 }) => {
-  const { currentBedIndex, submitSwipeTriage, advanceBed, beds } = useShiftStore();
+  const {
+    currentBedIndex,
+    submitSwipeTriage,
+    advanceBed,
+    beds,
+    user,
+    isCivilianMode,
+    toggleCivilianMode,
+  } = useShiftStore();
   const { awardQuestionXP } = useGamificationStore();
+
+  const isCivilian = isCivilianMode ?? !!user?.civilianMode;
 
   // Cards for this bed: Bed 1 gets cards 0..3, Bed 3 gets cards 4..7
   const isBed1 = currentBedIndex === 0;
@@ -47,7 +41,13 @@ export const SwipeTriage: React.FC<SwipeTriageProps> = ({
   const [maxStreak, setMaxStreak] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [triageHistory, setTriageHistory] = useState<
-    Array<{ id: string; action: 'CRASH' | 'STABLE'; isCorrect: boolean; takeaway: string }>
+    Array<{
+      id: string;
+      action: 'CRASH' | 'STABLE';
+      isCorrect: boolean;
+      takeaway: string;
+      laymanTakeaway?: string;
+    }>
   >([]);
 
   // Card gesture state
@@ -124,6 +124,7 @@ export const SwipeTriage: React.FC<SwipeTriageProps> = ({
           action,
           isCorrect,
           takeaway: currentCard.takeaway,
+          laymanTakeaway: currentCard.laymanTakeaway,
         },
       ]);
 
@@ -283,7 +284,7 @@ export const SwipeTriage: React.FC<SwipeTriageProps> = ({
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-700 leading-snug">
-                      {item.takeaway}
+                      {(isCivilian && item.laymanTakeaway) || item.takeaway}
                     </p>
                   </div>
                 ))}
@@ -324,6 +325,18 @@ export const SwipeTriage: React.FC<SwipeTriageProps> = ({
             <span className="px-2 py-0.5 rounded bg-slate-900 text-white font-mono text-[10px] font-bold">
               BED {beds[currentBedIndex]?.id}
             </span>
+            <button
+              id="btn-triage-civilian-toggle"
+              onClick={toggleCivilianMode}
+              className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                isCivilian
+                  ? 'bg-amber-100 text-amber-900 border-amber-300'
+                  : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+              }`}
+              title="Toggle Civilian Translation Mode"
+            >
+              {isCivilian ? 'Civilian' : 'Medical'}
+            </button>
             <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-slate-600">
               <Clock className="w-3.5 h-3.5 text-rose-500" />
               <span>{timeLeft}s</span>
@@ -381,7 +394,7 @@ export const SwipeTriage: React.FC<SwipeTriageProps> = ({
             className="pointer-events-none absolute inset-0 bg-rose-600/15 border-4 border-rose-500 rounded-2xl z-20 flex items-center justify-end p-6 transition-opacity"
           >
             <div className="bg-rose-600 text-white font-extrabold text-sm px-3 py-1.5 rounded-xl rotate-12 shadow-lg border-2 border-white uppercase tracking-wider">
-              CRASH / STAT
+              {isCivilian ? '🚨 CRITICAL / SHOCK NOW' : 'CRASH / STAT'}
             </div>
           </div>
 
@@ -390,7 +403,7 @@ export const SwipeTriage: React.FC<SwipeTriageProps> = ({
             className="pointer-events-none absolute inset-0 bg-emerald-600/15 border-4 border-emerald-500 rounded-2xl z-20 flex items-center justify-start p-6 transition-opacity"
           >
             <div className="bg-emerald-600 text-white font-extrabold text-sm px-3 py-1.5 rounded-xl -rotate-12 shadow-lg border-2 border-white uppercase tracking-wider">
-              STABLE / MEDS
+              {isCivilian ? '🛡️ STABLE / MONITOR' : 'STABLE / MEDS'}
             </div>
           </div>
 
@@ -458,8 +471,13 @@ export const SwipeTriage: React.FC<SwipeTriageProps> = ({
           {/* Clinical Presentation Body */}
           <div className="p-4 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold uppercase border border-slate-200">
-                {currentCard.category} Pathway
+              <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold uppercase border border-slate-200 flex items-center gap-1.5">
+                <span>{currentCard.category} Pathway</span>
+                {isCivilian && (
+                  <span className="text-[9px] text-amber-800 font-bold bg-amber-100 px-1 rounded border border-amber-200">
+                    Plain English
+                  </span>
+                )}
               </span>
               <span className="text-[10px] text-slate-400 font-medium">
                 Swipe or Keyboard (A / D)
@@ -467,12 +485,18 @@ export const SwipeTriage: React.FC<SwipeTriageProps> = ({
             </div>
 
             <p className="text-xs text-slate-800 font-medium leading-relaxed min-h-[72px]">
-              {currentCard.prompt}
+              {isCivilian && currentCard.laymanPrompt
+                ? currentCard.laymanPrompt
+                : currentCard.prompt}
             </p>
 
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
-              <span>← Swipe Left for Stable</span>
-              <span>Swipe Right for Crash →</span>
+              <span>
+                {isCivilian ? '← Swipe Left for Stable / Monitor' : '← Swipe Left for Stable'}
+              </span>
+              <span>
+                {isCivilian ? 'Swipe Right for Critical / Shock →' : 'Swipe Right for Crash →'}
+              </span>
             </div>
           </div>
         </div>
@@ -485,15 +509,15 @@ export const SwipeTriage: React.FC<SwipeTriageProps> = ({
           <button
             id="btn-triage-stable"
             onClick={() => handleTriageAction('STABLE')}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-3 rounded-2xl border-b-4 border-emerald-800 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-3 rounded-2xl border-b-4 border-emerald-800 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 cursor-pointer"
           >
-            <ShieldCheck className="w-5 h-5 text-emerald-100" />
+            <ShieldCheck className="w-5 h-5 text-emerald-100 shrink-0" />
             <div className="text-left">
               <div className="text-xs font-black uppercase tracking-wider">
-                [A] STABLE / MEDS
+                {isCivilian ? '[A] 🛡️ STABLE / MONITOR' : '[A] STABLE / MEDS'}
               </div>
               <div className="text-[9px] text-emerald-100 font-normal">
-                Standard Protocol
+                {isCivilian ? 'Standard Medication / Watch' : 'Standard Protocol'}
               </div>
             </div>
           </button>
@@ -502,22 +526,30 @@ export const SwipeTriage: React.FC<SwipeTriageProps> = ({
           <button
             id="btn-triage-crash"
             onClick={() => handleTriageAction('CRASH')}
-            className="bg-rose-600 hover:bg-rose-500 text-white font-bold py-3.5 px-3 rounded-2xl border-b-4 border-rose-800 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2 shadow-md shadow-rose-600/20"
+            className="bg-rose-600 hover:bg-rose-500 text-white font-bold py-3.5 px-3 rounded-2xl border-b-4 border-rose-800 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2 shadow-md shadow-rose-600/20 cursor-pointer"
           >
-            <AlertTriangle className="w-5 h-5 text-rose-100" />
+            <AlertTriangle className="w-5 h-5 text-rose-100 shrink-0" />
             <div className="text-left">
               <div className="text-xs font-black uppercase tracking-wider">
-                [D] CRASH / RESUS
+                {isCivilian ? '[D] 🚨 CRITICAL / SHOCK NOW' : '[D] CRASH / STAT'}
               </div>
               <div className="text-[9px] text-rose-100 font-normal">
-                Emergent Shock / Defib
+                {isCivilian ? 'Defib / Code Blue' : 'Emergent Shock / Defib'}
               </div>
             </div>
           </button>
         </div>
 
         <div className="text-center text-[10px] text-slate-400 font-medium">
-          Keyboard: Press <kbd className="px-1 py-0.5 bg-slate-200 rounded font-mono text-slate-700">A</kbd> for Stable, <kbd className="px-1 py-0.5 bg-slate-200 rounded font-mono text-slate-700">D</kbd> for Crash.
+          {isCivilian ? (
+            <>
+              Keyboard: Press <kbd className="px-1 py-0.5 bg-slate-200 rounded font-mono text-slate-700">A</kbd> for Stable / Monitor, <kbd className="px-1 py-0.5 bg-slate-200 rounded font-mono text-slate-700">D</kbd> for Critical / Shock.
+            </>
+          ) : (
+            <>
+              Keyboard: Press <kbd className="px-1 py-0.5 bg-slate-200 rounded font-mono text-slate-700">A</kbd> for Stable, <kbd className="px-1 py-0.5 bg-slate-200 rounded font-mono text-slate-700">D</kbd> for Crash.
+            </>
+          )}
         </div>
       </div>
     </div>

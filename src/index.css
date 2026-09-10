@@ -1,1 +1,158 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #b70011;
+  --color-primary-container: #dc2626;
+  --color-primary-fixed: #ffdad6;
+  --color-primary-fixed-dim: #ffb4ab;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #fff6f5;
+  --color-on-primary-fixed: #410002;
+  --color-on-primary-fixed-variant: #93000b;
+  --color-inverse-primary: #ffb4ab;
+
+  --color-surface: #f8f9ff;
+  --color-surface-dim: #cbdbf5;
+  --color-surface-bright: #f8f9ff;
+  --color-surface-variant: #d3e4fe;
+  --color-surface-tint: #bf0715;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container: #e5eeff;
+  --color-surface-container-high: #dce9ff;
+  --color-surface-container-highest: #d3e4fe;
+  --color-on-surface: #0b1c30;
+  --color-on-surface-variant: #5c403c;
+  --color-inverse-surface: #213145;
+  --color-inverse-on-surface: #eaf1ff;
+
+  --color-secondary: #565e74;
+  --color-secondary-container: #dae2fd;
+  --color-secondary-fixed: #dae2fd;
+  --color-secondary-fixed-dim: #bec6e0;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #5c647a;
+  --color-on-secondary-fixed: #131b2e;
+  --color-on-secondary-fixed-variant: #3f465c;
+
+  --color-tertiary: #b21618;
+  --color-tertiary-container: #d6332d;
+  --color-tertiary-fixed: #ffdad6;
+  --color-tertiary-fixed-dim: #ffb4ab;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #fff7f6;
+  --color-on-tertiary-fixed: #410002;
+  --color-on-tertiary-fixed-variant: #93000b;
+
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
+
+  --color-outline: #916f6b;
+  --color-outline-variant: #e6bdb8;
+  --color-background: #f8f9ff;
+  --color-on-background: #0b1c30;
+
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', sans-serif;
+}
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #0f172a;
+    font-family: 'Inter', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Custom Stitch AI Spacing & Typography Utility Classes */
+.font-label-micro {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  line-height: 11px;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+.font-label-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 13px;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.font-label-sans {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+.font-headline-sm {
+  font-family: 'Inter', sans-serif;
+  font-size: 17px;
+  line-height: 22px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+.font-headline-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 22px;
+  line-height: 26px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+.font-headline-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 30px;
+  line-height: 34px;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+.font-metric-md {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  line-height: 22px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+.font-metric-lg {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 26px;
+  line-height: 28px;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+.font-metric-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 34px;
+  line-height: 36px;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+}
+.font-body-sm {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+.font-body-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 400;
+}
+.font-body-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+}

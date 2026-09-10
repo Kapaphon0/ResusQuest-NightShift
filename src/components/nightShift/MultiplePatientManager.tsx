@@ -1,27 +1,12 @@
 import React from 'react';
-import {
-  Heart,
-  AlertTriangle,
-  User,
-  Activity,
-  ArrowRight,
-  TrendingDown,
-  ShieldAlert,
-  Clock,
-  Sparkles,
-  HelpCircle,
-} from 'lucide-react';
+import { AlertTriangle, Activity, ArrowRight } from 'lucide-react';
 import { Patient, ClinicalAcuity } from '../../types/nightShift';
-import { useNightShiftStore } from '../../store/useNightShiftStore';
-import { audio } from '../../utils/audio';
-
 interface MultiplePatientManagerProps {
   patients: Patient[];
   selectedIndex: number;
   onSelectBed: (index: number) => void;
   onPrioritize: (index: number) => void;
 }
-
 export const MultiplePatientManager: React.FC<MultiplePatientManagerProps> = ({
   patients,
   selectedIndex,

@@ -1,11 +1,9 @@
 import React from 'react';
-import { Activity, AlertTriangle, CheckCircle2, Info } from 'lucide-react';
-
+import { Activity, CheckCircle2, Info } from 'lucide-react';
 interface ECGLeadViewerProps {
   onInterpreted: (correct: boolean) => void;
   interpreted: boolean;
 }
-
 export const ECGLeadViewer: React.FC<ECGLeadViewerProps> = ({
   onInterpreted,
   interpreted,
@@ -17,13 +15,11 @@ export const ECGLeadViewer: React.FC<ECGLeadViewerProps> = ({
     interpreted ? 'lad' : null
   );
   const [submitted, setSubmitted] = React.useState<boolean>(interpreted);
-
   const handleSubmit = () => {
     const isCorrect = selectedTerritory === 'anteroseptal' && selectedVessel === 'lad';
     setSubmitted(true);
     onInterpreted(isCorrect);
   };
-
   return (
     <div
       id="ecg-diagnostic-viewer"

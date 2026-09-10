@@ -1,18 +1,14 @@
 import React from 'react';
-import { Trophy, Sparkles, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Trophy, Sparkles, ArrowRight, AlertCircle } from 'lucide-react';
 import { LevelUpEvent, GAME_RANK_DISCLAIMER } from '../../types/gamification';
 import { getCumulativeXpForLevel } from '../../utils/levelProgression';
-
 interface LevelUpModalProps {
   event: LevelUpEvent | null;
   onDismiss: () => void;
 }
-
 export const LevelUpModal: React.FC<LevelUpModalProps> = ({ event, onDismiss }) => {
   if (!event) return null;
-
   const nextLevelRequirement = getCumulativeXpForLevel(event.newLevel + 1);
-
   return (
     <div
       id="modal-levelup-backdrop"

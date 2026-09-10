@@ -1,24 +1,11 @@
 import React from 'react';
-import {
-  AlertTriangle,
-  Ambulance,
-  PhoneCall,
-  Flame,
-  Clock,
-  Coffee,
-  CheckCircle,
-  Zap,
-  Volume2,
-} from 'lucide-react';
-import { ShiftEvent, ShiftEventChoice } from '../../types/nightShift';
-import { audio } from '../../utils/audio';
-
+import { AlertTriangle, Ambulance, PhoneCall, Flame, Coffee, CheckCircle, Zap } from 'lucide-react';
+import { ShiftEvent } from '../../types/nightShift';
 interface RandomEventModalProps {
   event: ShiftEvent;
   currentAP: number;
   onResolve: (choiceId: string) => void;
 }
-
 export const RandomEventModal: React.FC<RandomEventModalProps> = ({
   event,
   currentAP,

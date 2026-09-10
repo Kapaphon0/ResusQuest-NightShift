@@ -2,12 +2,7 @@ import React, { useState } from 'react';
 import { useShiftStore } from './store/useShiftStore';
 import { useGamificationStore } from './store/useGamificationStore';
 import { useAvatarStore } from './store/useAvatarStore';
-import { TopHUD } from './components/TopHUD';
-import { StartLobby } from './components/StartLobby';
-import { SwipeTriage } from './components/SwipeTriage';
-import { FogOfWarBed } from './components/FogOfWarBed';
 import { PerkDraftModal } from './components/PerkDraftModal';
-import { ShiftDebrief } from './components/ShiftDebrief';
 import { BottomNav, AppTab } from './components/BottomNav';
 import { HomeScreen } from './components/HomeScreen';
 import { LearnTab } from './components/LearnTab';
@@ -20,14 +15,16 @@ import { AvatarStudioModal } from './components/avatar/AvatarStudioModal';
 import { InventoryModal } from './components/inventory/InventoryModal';
 import { XPGainToast } from './components/gamification/XPGainToast';
 import { LevelUpModal } from './components/gamification/LevelUpModal';
+import { MedicalGlossaryModal } from './components/glossary/MedicalGlossaryModal';
+import { useGlossary } from './components/glossary/useGlossaryStore';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { GAME_BALANCE } from './constants/gameBalance';
 import { Activity, Shield, Map, BookOpen } from 'lucide-react';
 
 export default function App() {
   const {
     user,
     status,
-    beds,
-    currentBedIndex,
     ankiQueueIds,
     missedConcepts,
     startShift,
@@ -40,7 +37,6 @@ export default function App() {
     levelUp,
     dismissLevelUp,
     dismissXpToast,
-    levelDetails,
   } = useGamificationStore();
 
   const {
@@ -50,11 +46,12 @@ export default function App() {
     setInventoryModalOpen,
   } = useAvatarStore();
 
+  const { currentEntry: glossaryEntry, closeTerm: closeGlossary } = useGlossary();
+
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [learnView, setLearnView] = useState<'path' | 'atlas'>('path');
-  const [bossBattleActive, setBossBattleActive] = useState<boolean>(false);
+  const [bossBattleActive, setBossBattleActive] = useState(false);
 
-  const currentBed = beds[currentBedIndex];
   const dueReviewCount = Math.max(ankiQueueIds.length, missedConcepts.length);
   const dailyGoalProgress = Math.max(25, Math.min(100, Math.round(((user.xp % 300) / 300) * 100)));
 
@@ -89,7 +86,8 @@ export default function App() {
         id="app-mobile-container"
         className="w-full max-w-md min-h-screen sm:min-h-[780px] sm:max-h-[92vh] bg-slate-50 border-x sm:border border-slate-200 sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden relative"
       >
-        {/* Boss Battle View or Tab-based Routing */}
+        <ErrorBoundary>
+          {/* Boss Battle View or Tab-based Routing */}
         {bossBattleActive ? (
           <ChestPainCaseView onExit={() => setBossBattleActive(false)} />
         ) : (
@@ -107,6 +105,10 @@ export default function App() {
                   }
                 }}
                 onStartLesson={() => setActiveTab('learn')}
+                onOpenAtlas={() => {
+                  setActiveTab('learn');
+                  setLearnView('atlas');
+                }}
                 onOpenReview={() => setActiveTab('review')}
                 onStartBossCase={() => setBossBattleActive(true)}
               />
@@ -116,29 +118,29 @@ export default function App() {
               <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Sub-view Toggle */}
                 <div className="px-4 pt-3 pb-2 bg-white border-b border-slate-200">
-                  <div className="flex p-1 bg-slate-100 rounded-xl">
+                  <div className="flex p-1 bg-slate-100 rounded-2xl max-w-xs mx-auto border border-slate-200">
                     <button
                       id="btn-switch-learn-path"
                       onClick={() => setLearnView('path')}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                         learnView === 'path'
-                          ? 'bg-white text-slate-900 shadow-xs'
-                          : 'text-slate-500 hover:text-slate-700'
+                          ? 'bg-slate-900 text-white shadow-xs'
+                          : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
-                      <Map className="w-3.5 h-3.5 text-rose-600" />
+                      <Map className={`w-3.5 h-3.5 ${learnView === 'path' ? 'text-rose-400' : 'text-slate-400'}`} />
                       <span>Curriculum Tree</span>
                     </button>
                     <button
                       id="btn-switch-learn-atlas"
                       onClick={() => setLearnView('atlas')}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                         learnView === 'atlas'
-                          ? 'bg-white text-slate-900 shadow-xs'
-                          : 'text-slate-500 hover:text-slate-700'
+                          ? 'bg-slate-900 text-white shadow-xs'
+                          : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
-                      <BookOpen className="w-3.5 h-3.5 text-rose-600" />
+                      <BookOpen className={`w-3.5 h-3.5 ${learnView === 'atlas' ? 'text-rose-400' : 'text-slate-400'}`} />
                       <span>Protocol Atlas</span>
                     </button>
                   </div>
@@ -148,6 +150,7 @@ export default function App() {
                   <LearnPath
                     onCompleteLesson={(xp) => awardXP(xp)}
                     onStartBossCase={() => setBossBattleActive(true)}
+                    onSwitchToAtlas={() => setLearnView('atlas')}
                   />
                 ) : (
                   <LearnTab />
@@ -164,7 +167,7 @@ export default function App() {
             {activeTab === 'review' && (
               <AnkiDeck
                 onCardReviewed={() => {
-                  awardXP(15);
+                  awardXP(GAME_BALANCE.XP_REWARDS.ANKI_CARD_REVIEW);
                   if (ankiQueueIds.length > 0) {
                     removeFromAnkiQueue(ankiQueueIds[0]);
                   }
@@ -200,7 +203,14 @@ export default function App() {
           isOpen={inventoryModalOpen}
           onClose={() => setInventoryModalOpen(false)}
         />
-      </main>
+
+        {/* Interactive Touch-To-Explain Medical Glossary Micro-Drawer */}
+        <MedicalGlossaryModal
+          entry={glossaryEntry}
+          onClose={closeGlossary}
+        />
+      </ErrorBoundary>
+    </main>
     </div>
   );
 }
