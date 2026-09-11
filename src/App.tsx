@@ -52,11 +52,12 @@ export default function App() {
   const [learnView, setLearnView] = useState<'path' | 'atlas'>('path');
   const [bossBattleActive, setBossBattleActive] = useState(false);
 
-  const dueReviewCount = Math.max(ankiQueueIds.length, missedConcepts.length);
-  const dailyGoalProgress = Math.max(25, Math.min(100, Math.round(((user.xp % 300) / 300) * 100)));
+  const dueReviewCount = Math.max((ankiQueueIds || []).length, (missedConcepts || []).length);
+  const currentXP = Number.isFinite(user?.xp) ? user.xp : 0;
+  const dailyGoalProgress = Math.max(25, Math.min(100, Math.round(((currentXP % 300) / 300) * 100)));
 
   // Map missed shift concepts to flashcards
-  const dynamicReviewCards: Flashcard[] = missedConcepts.map((m) => ({
+  const dynamicReviewCards: Flashcard[] = (missedConcepts || []).map((m) => ({
     id: m.id,
     front: m.promptOrScenario,
     back: `${m.correctAction} — ${m.clinicalReason}`,

@@ -13,10 +13,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <script>
+      // Automatically redirect to trailing-slash URL on GitHub Pages subpaths
+      // so relative assets (./assets/...) resolve properly and avoid 404 blank pages.
+      (function () {
+        var loc = window.location;
+        if (loc.pathname && !loc.pathname.endsWith('/') && !loc.pathname.split('/').pop().includes('.')) {
+          loc.replace(loc.origin + loc.pathname + '/' + loc.search + loc.hash);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="./src/main.tsx"></script>
+    <noscript>
+      <div style="font-family: system-ui, sans-serif; text-align: center; padding: 40px; color: #0f172a;">
+        <h2>JavaScript is Required</h2>
+        <p>Please enable JavaScript in your browser to run ResusQuest.</p>
+      </div>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
 

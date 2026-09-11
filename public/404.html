@@ -6,12 +6,29 @@
     <title>ResusQuest: The Night Shift</title>
     <script>
       // Single Page App redirect for GitHub Pages
-      var path = window.location.pathname;
-      var origin = window.location.origin;
-      // Get the repository subpath if running under username.github.io/repo-name/
-      var parts = path.split('/').filter(Boolean);
-      var repoBase = parts.length > 0 ? '/' + parts[0] + '/' : '/';
-      window.location.replace(origin + repoBase);
+      (function() {
+        var path = window.location.pathname;
+        var origin = window.location.origin;
+
+        // Never redirect for missing static files (js, css, images, etc.) to prevent infinite reload loops
+        if (/\.[a-zA-Z0-9]+$/.test(path)) {
+          return;
+        }
+
+        var isGithubIo = window.location.hostname.endsWith('github.io');
+        var parts = path.split('/').filter(Boolean);
+
+        // If on user.github.io/repo-name/
+        var repoBase = '/';
+        if (isGithubIo && parts.length > 0) {
+          repoBase = '/' + parts[0] + '/';
+        }
+
+        // Only redirect if we are not already at repoBase
+        if (path !== repoBase) {
+          window.location.replace(origin + repoBase);
+        }
+      })();
     </script>
   </head>
   <body>
